@@ -4,11 +4,13 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface CoinGeckoService {
+
     @GET("coins/markets")
-    suspend fun getAllCoins(
+    suspend fun getCoins(
         @Query("vs_currency") vsCurrency: String = "eur",
-        @Query("per_page") perPage: Int = 100,
-        @Query("page") page: Int = 1
+        @Query("per_page") perPage: Int = 5,
+        @Query("page") page: Int = 1,
+        @Query("sparkline") sparkline: Boolean = false
     ): List<CoinDto>
 
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.cryptotracker.network.CoinDto
 import androidx.compose.material3.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -37,6 +38,7 @@ import coil.compose.AsyncImage
 fun CryptoDropdown(
     coins: List<CoinDto>,
     onSelected: (CoinDto) -> Unit,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -85,7 +87,8 @@ fun CryptoDropdown(
             },
             modifier = Modifier.fillMaxWidth(0.8f)
         ) {
-            filtered.forEach { coin ->
+            val lastIndex = filtered.lastIndex
+            filtered.forEachIndexed { index, coin ->
                 DropdownMenuItem(
                     text = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -110,6 +113,12 @@ fun CryptoDropdown(
                         keyboardController?.hide()
                     }
                 )
+                if (index == lastIndex) {
+                    LaunchedEffect(Unit) {
+                        onLoadMore()
+                    }
+                }
+
             }
         }
     }

@@ -27,11 +27,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.cryptotracker.components.CryptoDropdown
 import com.example.cryptotracker.data.CryptoDatabase
 import com.example.cryptotracker.network.CoinDto
 import com.example.cryptotracker.repository.CryptoRepository
 import com.example.cryptotracker.ui.theme.CryptoTrackerTheme
+import com.example.cryptotracker.windows.AddWindow
+import com.example.cryptotracker.windows.MainWindow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,22 +49,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val allCoins by viewModel.coinGeckoCoins.collectAsState()
-            var selectedCoin by remember { mutableStateOf<CoinDto?>(null) }
+            val navController = rememberNavController()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CryptoDropdown(
-                    coins = allCoins,
-                    onSelected = {
-                        selectedCoin = it
-                    }
-                )
-
+            NavHost(navController = navController, startDestination = "main") {
+                composable("main") {
+                    MainWindow(
+                        viewModel = viewModel,
+                        onNavigateToAddForm = { navController.navigate("addForm") }
+                    )
+                }
+                composable("addForm") {
+                    AddWindow(
+                        viewModel = viewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
             }
 
 
