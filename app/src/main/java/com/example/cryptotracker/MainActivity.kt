@@ -36,6 +36,7 @@ import com.example.cryptotracker.network.CoinDto
 import com.example.cryptotracker.repository.CryptoRepository
 import com.example.cryptotracker.ui.theme.CryptoTrackerTheme
 import com.example.cryptotracker.windows.AddWindow
+import com.example.cryptotracker.windows.DetailWindow
 import com.example.cryptotracker.windows.MainWindow
 
 class MainActivity : ComponentActivity() {
@@ -55,11 +56,22 @@ class MainActivity : ComponentActivity() {
                 composable("main") {
                     MainWindow(
                         viewModel = viewModel,
-                        onNavigateToAddForm = { navController.navigate("addForm") }
+                        onNavigateToAddForm = { navController.navigate("addForm") },
+                        onNavigateToDetail = { coinId ->
+                            navController.navigate("detail/$coinId")
+                        }
                     )
                 }
                 composable("addForm") {
                     AddWindow(
+                        viewModel = viewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                composable("detail/{coinId}") { backStackEntry ->
+                    val coinId = backStackEntry.arguments?.getString("coinId") ?: return@composable
+                    DetailWindow(
+                        coinId = coinId,
                         viewModel = viewModel,
                         onBack = { navController.popBackStack() }
                     )

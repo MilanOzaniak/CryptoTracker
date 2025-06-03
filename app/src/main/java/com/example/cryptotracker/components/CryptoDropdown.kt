@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.example.cryptotracker.network.CoinDto
 import androidx.compose.material3.*
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -41,8 +42,8 @@ fun CryptoDropdown(
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var search by remember { mutableStateOf("") }
+    var expanded by rememberSaveable  { mutableStateOf(false) }
+    var search by rememberSaveable  { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
@@ -62,7 +63,7 @@ fun CryptoDropdown(
                 search = it
                 expanded = true
             },
-            label = { Text("Vyhľadaj kryptomenu") },
+            label = { Text("Search...") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
             modifier = Modifier
                 .menuAnchor()

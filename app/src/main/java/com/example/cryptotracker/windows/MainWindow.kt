@@ -1,5 +1,6 @@
 package com.example.cryptotracker.windows
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,7 +27,8 @@ import com.example.cryptotracker.components.CryptoItem
 @Composable
 fun MainWindow(
     viewModel: CryptoViewModel,
-    onNavigateToAddForm: () -> Unit
+    onNavigateToAddForm: () -> Unit,
+    onNavigateToDetail: (String) -> Unit
 ) {
     val allCoins by viewModel.coinGeckoCoins.collectAsState()
     var selectedCoin by remember { mutableStateOf("") }
@@ -39,14 +42,26 @@ fun MainWindow(
     ) {
 
         Button(onClick = onNavigateToAddForm) {
-            Text("Pridať kryptomenu")
+            Text("Add crypto")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(savedCryptos) { crypto ->
-                CryptoItem(crypto)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+            ) {
+                items(savedCryptos, key = { it.id }) { crypto ->
+                    CryptoItem(crypto, onClick = {
+                        onNavigateToDetail(crypto.id)
+                    })
+                }
             }
         }
     }

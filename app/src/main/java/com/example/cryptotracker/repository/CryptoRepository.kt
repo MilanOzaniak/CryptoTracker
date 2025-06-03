@@ -17,4 +17,26 @@ class CryptoRepository(private val dao: CryptoDao) {
     suspend fun deleteAll() {
         dao.deleteAll()
     }
+
+    suspend fun update(crypto: Crypto) {
+        dao.update(crypto)
+    }
+
+    suspend fun updateManually(crypto: Crypto) {
+        dao.updateCrypto(
+            id = crypto.id,
+            name = crypto.name,
+            symbol = crypto.symbol,
+            image = crypto.image,
+            amountOwned = crypto.amountOwned,
+            boughtSum = crypto.boughtSum,
+            price = crypto.price
+        )
+    }
+
+    suspend fun getCryptoById(id: String): Crypto? {
+        return dao.getCryptoById(id)
+    }
+
+
 }

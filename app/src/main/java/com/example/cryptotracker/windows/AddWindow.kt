@@ -14,20 +14,35 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.cryptotracker.CryptoViewModel
 import com.example.cryptotracker.components.CryptoDropdown
+import com.example.cryptotracker.components.ErrorDialog
 import com.example.cryptotracker.network.CoinDto
 
 @Composable
 fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
-    var amount by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
+    var amount by rememberSaveable  { mutableStateOf("") }
+    var price by rememberSaveable  { mutableStateOf("") }
     val allCoins by viewModel.coinGeckoCoins.collectAsState()
-    var selectedCoin by remember { mutableStateOf<CoinDto?>(null) }
+    var selectedCoinId by rememberSaveable { mutableStateOf("") }
+    var showErrorDialog by rememberSaveable  { mutableStateOf(false) }
+    var errorDialogMessage by rememberSaveable  { mutableStateOf<String?>(null) }
+    val selectedCoin = allCoins.find { it.id == selectedCoinId }
+
+    if (errorDialogMessage != null) {
+        ErrorDialog(
+            message = errorDialogMessage ?: "Unknown error",
+            onDismiss = {
+                showErrorDialog = false
+                errorDialogMessage = null
+            }
+        )
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
 
@@ -35,8 +50,10 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
 
         CryptoDropdown(
             coins = allCoins,
-            onSelected = {
-                selectedCoin = it
+            onSelected = { coin ->
+                selectedCoinId = coin.id
+                amount = ""
+                price = ""
             },
             onLoadMore = {
                 viewModel.loadCoinsFromApi()
@@ -58,7 +75,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                     }
                 }
             },
-            label = { Text("Zadaj množstvo") },
+            label = { Text("Amount") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
             singleLine = true
         )
@@ -73,7 +90,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                     price = it
                 }
             },
-            label = { Text("Zadaj cenu") },
+            label = { Text("Price") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
             singleLine = true
         )
@@ -82,20 +99,25 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
 
         Button(onClick = {
             val coin = selectedCoin
-            if (coin != null && amount.isNotBlank() && price.isNotBlank()) {
-                viewModel.insertCrypto(
-                    id = coin.id,
-                    name = coin.name,
-                    symbol = coin.symbol,
-                    image = coin.image,
-                    amountOwned = amount.toDouble(),
-                    boughtSum = price.toDouble(),
-                    price = coin.current_price
-                )
-                onBack()
+            val newAmount = amount.toDoubleOrNull()
+
+
+            if (coin == null) {
+                errorDialogMessage = "Select crypto."
+                showErrorDialog = true
+                return@Button
             }
+
+            if (newAmount == null || newAmount <= 0) {
+                errorDialogMessage = "Amount must be greater than zero"
+                showErrorDialog = true
+                return@Button
+            }
+
+            viewModel.insertOrUpdateCrypto(coin, newAmount)
+            onBack()
         }) {
-            Text("Uložiť a späť")
+            Text("Confirm")
         }
     }
 }

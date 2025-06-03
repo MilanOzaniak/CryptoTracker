@@ -1,32 +1,39 @@
 package com.example.cryptotracker
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cryptotracker.data.Crypto
 import com.example.cryptotracker.network.CoinDto
 import com.example.cryptotracker.network.RetrofitInstance
 import com.example.cryptotracker.repository.CryptoRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
 
     private val _coinGeckoCoins = MutableStateFlow<List<CoinDto>>(emptyList())
     val coinGeckoCoins = _coinGeckoCoins.asStateFlow()
-    val localCryptos: StateFlow<List<Crypto>> = repository.allCryptos
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val localCryptos: StateFlow<List<Crypto>> = repository.allCryptos.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private var currentPage = 1
     private var isLoading = false
     private var allLoaded = false
+    private var isWriting = false
 
     init {
         if (_coinGeckoCoins.value.isEmpty()) {
             loadCoinsFromApi()
         }
+        startPriceUpdater()
     }
 
     fun loadCoinsFromApi() {
@@ -50,27 +57,96 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
         }
     }
 
-    fun insertCrypto(
-        id: String,
-        name: String,
-        symbol: String,
-        image: String,
-        amountOwned: Double,
-        boughtSum: Double,
-        price: Double
+    fun insertOrUpdateCrypto(
+        coin: CoinDto,
+        amount: Double
     ) {
         viewModelScope.launch {
-            repository.insert(
-                Crypto(
-                    id = id,
-                    name = name,
-                    symbol = symbol,
-                    image = image,
-                    amountOwned = amountOwned,
-                    boughtSum = boughtSum,
-                    price = price
+            isWriting = true
+            val existing = withContext(Dispatchers.IO) { repository.getCryptoById(coin.id) }
+
+             if (existing != null) {
+
+                 val crypto = Crypto(
+                     id = coin.id,
+                     name = coin.name,
+                     symbol = coin.symbol,
+                     image = coin.image,
+                     amountOwned = existing.amountOwned + amount,
+                     boughtSum = existing.boughtSum + (coin.current_price * amount),
+                     price = coin.current_price
+                 )
+                 repository.insert(crypto)
+
+
+            } else {
+                val crypto = Crypto(
+                    id = coin.id,
+                    name = coin.name,
+                    symbol = coin.symbol,
+                    image = coin.image,
+                    amountOwned = amount,
+                    boughtSum = coin.current_price * amount,
+                    price = coin.current_price
                 )
+                 repository.insert(crypto)
+            }
+            isWriting = false
+        }
+    }
+
+    fun insertCrypto(coin: Crypto){
+        viewModelScope.launch {
+            val crypto = Crypto(
+                id = coin.id,
+                name = coin.name,
+                symbol = coin.symbol,
+                image = coin.image,
+                amountOwned = coin.amountOwned,
+                boughtSum = coin.price * coin.amountOwned,
+                price = coin.price
             )
+            repository.insert(crypto)
+        }
+    }
+
+    fun deleteCrypto(crypto: Crypto) {
+        viewModelScope.launch {
+            repository.delete(crypto)
+        }
+    }
+
+    fun modifyCrypto(updatedCrypto: Crypto) {
+        viewModelScope.launch {
+            repository.update(updatedCrypto)
+        }
+    }
+
+    fun startPriceUpdater() {
+        viewModelScope.launch {
+            while (true) {
+                updatePrices()
+                delay(20000)
+            }
+        }
+    }
+
+    private suspend fun updatePrices() {
+        if (isWriting) return
+
+        val savedCryptos = repository.allCryptos.first()
+
+        val ids = savedCryptos.joinToString(",") { it.id }
+
+        try {
+            val updatedList = RetrofitInstance.api.getCoinsByIds(ids = ids)
+
+            updatedList.forEach { updated ->
+                val original = savedCryptos.find { it.id == updated.id } ?: return@forEach
+                repository.update(original.copy(price = updated.current_price))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
