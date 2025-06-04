@@ -1,5 +1,6 @@
 package com.example.cryptotracker
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cryptotracker.data.Crypto
 import com.example.cryptotracker.network.CoinDto
 import com.example.cryptotracker.network.RetrofitInstance
+import com.example.cryptotracker.notifications.cryptoNotification
 import com.example.cryptotracker.repository.CryptoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -148,6 +150,14 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    fun scheduleNotification(
+        context: Context,
+        coin: CoinDto,
+        targetPrice: Double
+    ) {
+        cryptoNotification(context = context, coin = coin, targetPrice = targetPrice)
     }
 
 

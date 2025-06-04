@@ -28,7 +28,8 @@ import com.example.cryptotracker.components.CryptoItem
 fun MainWindow(
     viewModel: CryptoViewModel,
     onNavigateToAddForm: () -> Unit,
-    onNavigateToDetail: (String) -> Unit
+    onNavigateToDetail: (String) -> Unit,
+    onNavigateToNotification: () -> Unit
 ) {
     val allCoins by viewModel.coinGeckoCoins.collectAsState()
     var selectedCoin by remember { mutableStateOf("") }
@@ -43,6 +44,9 @@ fun MainWindow(
 
         Button(onClick = onNavigateToAddForm) {
             Text("Add crypto")
+        }
+        Button(onClick = onNavigateToNotification) {
+            Text("Add notification")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
