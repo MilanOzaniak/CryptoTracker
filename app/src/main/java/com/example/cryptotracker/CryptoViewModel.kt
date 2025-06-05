@@ -162,9 +162,10 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
     fun scheduleNotification(
         context: Context,
         coin: CoinDto,
-        targetPrice: Double
+        targetPrice: Double,
+        choice: Boolean
     ) {
-        cryptoNotification(context = context, coin = coin, targetPrice = targetPrice)
+        cryptoNotification(context = context, coin = coin, targetPrice = targetPrice, choice)
     }
 
 

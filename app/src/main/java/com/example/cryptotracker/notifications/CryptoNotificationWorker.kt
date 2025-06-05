@@ -10,6 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.cryptotracker.R
 import com.example.cryptotracker.network.RetrofitInstance
@@ -18,25 +19,28 @@ import kotlinx.coroutines.withContext
 
 class CryptoNotificationWorker(
     context: Context,
-    params: WorkerParameters
+    params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val coinId = inputData.getString("coinId") ?: return@withContext Result.failure()
         val coinName = inputData.getString("coinName") ?: return@withContext Result.failure()
         val targetPrice = inputData.getDouble("targetPrice", -1.0)
+        val choose = inputData.getBoolean("choose", false)
         if (targetPrice <= 0) return@withContext Result.failure()
 
         try {
             val response = RetrofitInstance.api.getCoinsByIds(ids = coinId)
             val price = response[0].current_price
 
-            if (price >= targetPrice) {
+            if ((!choose && price >= targetPrice) || (choose && price <= targetPrice)) {
                 if (ContextCompat.checkSelfPermission(applicationContext, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
                     showNotification(
                         "$coinName Alert",
-                        "Price reached $price €"
+                        "Price ${if (choose) "is less than" else "is above"} $targetPrice  (current price $price)€"
                     )
+                    WorkManager.getInstance(applicationContext).cancelWorkById(id)
+
                 }
             }
 

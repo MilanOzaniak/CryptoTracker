@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">CryptoTracker</string>
+    <string name="portfolio_value">portfolio value</string>
+    <string name="portfolio_profit">Profit</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="select_error">Select crypto</string>
+    <string name="amount_error">Amount must be greater than zero</string>
+    <string name="add_crypto">Pridaj Kryptomenu</string>
+    <string name="amount">Amount</string>
+    <string name="price">Price</string>
+    <string name="confirmation">Confirmation</string>
+    <string name="delete_question">Do you want to delete?</string>
+    <string name="edit">Edit</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="blank">--------</string>
+    <string name="above">Above</string>
+    <string name="less">Less</string>
+    <string name="price_notification">Set Price Notification</string>
 </resources>

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,6 +37,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.example.cryptotracker.R
 
 @Composable
 fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
@@ -49,7 +55,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
 
     if (errorDialogMessage != null) {
         ErrorDialog(
-            message = errorDialogMessage ?: "Unknown error",
+            message = errorDialogMessage ?: stringResource(R.string.unknown_error),
             onDismiss = {
                 showErrorDialog = false
                 errorDialogMessage = null
@@ -68,7 +74,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Black // čierna šípka
+                    tint = colorResource(R.color.icon_color)
                 )
             }
 
@@ -90,71 +96,82 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                     }
 
                     viewModel.insertOrUpdateCrypto(coin, newAmount)
+
                     onBack()
                 }
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Confirm",
-                    tint = Color.Black // čierna farba
+                    tint = colorResource(R.color.icon_color)
                 )
             }
         }
-        Spacer(modifier = Modifier.fillMaxHeight(0.3f))
+        Spacer(modifier = Modifier.fillMaxHeight(0.2f))
 
+        Column(    modifier = Modifier
+            .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally) {
 
-        CryptoDropdown(
-            coins = allCoins,
-            onSelected = { coin ->
-                selectedCoinId = coin.id
-                amount = ""
-                price = ""
-            },
-            onLoadMore = { viewModel.loadCoinsFromApi() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFF1E9F9), shape = RoundedCornerShape(8.dp))
-        )
+            Text(stringResource(R.string.add_crypto),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(18.dp),)
 
-        Spacer(modifier = Modifier.height(18.dp))
+            CryptoDropdown(
 
-        TextField(
-            value = amount,
-            onValueChange = {
-                val cleaned = it.replace(',', '.')
-                if (cleaned.matches(Regex("^\\d*\\.?\\d*\$"))) {
-                    amount = it
-                    val amt = it.toDoubleOrNull()
-                    if (amt != null && selectedCoin != null) {
-                        price = (amt * selectedCoin.current_price).toString()
+                coins = allCoins,
+                onSelected = { coin ->
+                    selectedCoinId = coin.id
+                    amount = ""
+                    price = ""
+                },
+                onLoadMore = { viewModel.loadCoinsFromApi() },
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(8.dp))
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            TextField(
+                value = amount,
+                onValueChange = {
+                    val cleaned = it.replace(',', '.')
+                    if (cleaned.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                        amount = it
+                        val amt = it.toDoubleOrNull()
+                        if (amt != null && selectedCoin != null) {
+                            price = (amt * selectedCoin.current_price).toString()
+                        }
                     }
-                }
-            },
-            label = { Text("Amount") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFF1E9F9), shape = RoundedCornerShape(8.dp))
-        )
+                },
+                label = { Text(stringResource(R.string.amount)) },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(8.dp))
+            )
 
-        Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-        TextField(
-            value = price,
-            onValueChange = {
-                val cleaned = it.replace(',', '.')
-                if (cleaned.matches(Regex("^\\d*\\.?\\d*\$"))) {
-                    price = it
-                }
-            },
-            label = { Text("Price") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFF1E9F9), shape = RoundedCornerShape(8.dp))
-        )
+            TextField(
+                value = price,
+                onValueChange = {
+                    val cleaned = it.replace(',', '.')
+                    if (cleaned.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                        price = it
+                    }
+                },
+                label = { Text(stringResource(R.string.price)) },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(8.dp))
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 

@@ -86,7 +86,7 @@ fun CryptoDropdown(
             onDismissRequest = {
                 expanded = false
             },
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.74f)
         ) {
             val lastIndex = filtered.lastIndex
             filtered.forEachIndexed { index, coin ->

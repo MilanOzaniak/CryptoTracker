@@ -15,7 +15,14 @@ import com.example.cryptotracker.CryptoViewModel
 import com.example.cryptotracker.components.CryptoDropdown
 import com.example.cryptotracker.network.CoinDto
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.cryptotracker.R
 
 
 @Composable
@@ -25,15 +32,60 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
     var triggerValue by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
+    var choice by rememberSaveable { mutableStateOf(false) }
 
     val selectedCoin = allCoins.find { it.id == selectedCoinId }
 
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Set Price Notification", style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+
+
+        Row( modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween) {
+
+            IconButton(onClick = { onBack() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.Black
+                )
+            }
+
+            IconButton(
+                onClick = {
+                    val value = triggerValue.toDoubleOrNull()
+                    if (selectedCoin == null) {
+                        error = "Please select a coin."
+                    } else if (value == null) {
+                        error = "Enter a valid numeric value."
+                    } else {
+                        viewModel.scheduleNotification(
+                            context = context,
+                            coin = selectedCoin,
+                            targetPrice = value,
+                            choice = choice
+
+                        )
+                        onBack()
+                    }
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Confirm",
+                    tint = Color.Black
+                )
+            }
+        }
+
+        Spacer(Modifier.fillMaxHeight(0.2f))
+        Text(stringResource(R.string.price_notification), style = MaterialTheme.typography.headlineSmall)
 
         Spacer(Modifier.height(12.dp))
 
@@ -43,6 +95,31 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
             onLoadMore = { viewModel.loadCoinsFromApi() }
         )
 
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+        ) {
+            Button(
+                onClick = { choice = false },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (!choice) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.above))
+            }
+
+            Button(
+                onClick = { choice = true },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (choice) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(stringResource(R.string.less))
+            }
+        }
         Spacer(Modifier.height(16.dp))
 
         TextField(
@@ -51,10 +128,11 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 triggerValue = it
                 error = ""
             },
-            label = { Text("Notify when price exceeds (€)") },
+            label = { Text(stringResource(R.string.price)) },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
             singleLine = true,
-            isError = error.isNotEmpty()
+            isError = error.isNotEmpty(),
+            modifier = Modifier.fillMaxWidth(0.8f)
         )
 
         if (error.isNotEmpty()) {
@@ -64,25 +142,5 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
 
         Spacer(Modifier.height(24.dp))
 
-        Button(
-            onClick = {
-                val value = triggerValue.toDoubleOrNull()
-                if (selectedCoin == null) {
-                    error = "Please select a coin."
-                } else if (value == null) {
-                    error = "Enter a valid numeric value."
-                } else {
-                    viewModel.scheduleNotification(
-                        context = context,
-                        coin = selectedCoin,
-                        targetPrice = value
-                    )
-                    onBack()
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Confirm")
-        }
     }
 }

@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -31,11 +33,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.cryptotracker.R
 import com.example.cryptotracker.components.CryptoDropdown
 import com.example.cryptotracker.network.CoinDto
 
@@ -44,14 +49,14 @@ import com.example.cryptotracker.network.CoinDto
 fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit) {
     val savedCoins by viewModel.localCryptos.collectAsState()
     val coin = savedCoins.find { it.id == coinId }
-    var showDialog by remember { mutableStateOf(false) }
-    var showEditDialog by remember { mutableStateOf(false) }
-    var editedAmount by remember { mutableStateOf("") }
-    var editedPrice by remember { mutableStateOf("") }
-    var showSwapDialog by remember { mutableStateOf(false) }
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var showEditDialog by rememberSaveable { mutableStateOf(false) }
+    var editedAmount by rememberSaveable { mutableStateOf("") }
+    var editedPrice by rememberSaveable { mutableStateOf("") }
+    var showSwapDialog by rememberSaveable { mutableStateOf(false) }
     var selectedNewCoin by remember { mutableStateOf<CoinDto?>(null) }
-    var newAmount by remember { mutableStateOf("") }
-    var overrideSum by remember { mutableStateOf("") }
+    var newAmount by rememberSaveable { mutableStateOf("") }
+    var overrideSum by rememberSaveable { mutableStateOf("") }
     Column(modifier = Modifier
         .padding(16.dp)
         .fillMaxSize())
@@ -138,8 +143,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                 IconButton(onClick = { showDialog = true }) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = Color.Black
+                        contentDescription = "Delete"
                     )
                 }
 
@@ -155,20 +159,20 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
-                    title = { Text("Confirmation") },
-                    text = { Text("Do you want to delete?") },
+                    title = { Text(stringResource(R.string.confirmation)) },
+                    text = { Text(stringResource(R.string.delete_question)) },
                     confirmButton = {
                         TextButton(onClick = {
                             viewModel.deleteCrypto(coin)
                             showDialog = false
                             onBack()
                         }) {
-                            Text("Confirm")
+                            Text(stringResource(R.string.confirm))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDialog = false }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 )
@@ -177,7 +181,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
             if (showEditDialog) {
                 AlertDialog(
                     onDismissRequest = { showEditDialog = false },
-                    title = { Text("Edit") },
+                    title = { Text(stringResource(R.string.edit)) },
                     text = {
                         Column {
                             OutlinedTextField(
@@ -191,7 +195,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             OutlinedTextField(
                                 value = editedPrice,
                                 onValueChange = { editedPrice = it },
-                                label = { Text("Price") },
+                                label = { Text("stringResource(R.string.price)") },
                                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
                                 singleLine = true
                             )
@@ -211,12 +215,12 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             viewModel.insertCrypto(updated)
                             showEditDialog = false
                         }) {
-                            Text("Confirm")
+                            Text(stringResource(R.string.confirm))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showEditDialog = false }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 )
@@ -225,30 +229,34 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
             if (showSwapDialog) {
                 val allCoins by viewModel.coinGeckoCoins.collectAsState()
                 val calculatedSum = (selectedNewCoin?.current_price ?: 0.0) * (newAmount.toDoubleOrNull() ?: 0.0)
+                val scrollState = rememberScrollState()
+
+
 
                 AlertDialog(
                     onDismissRequest = { showSwapDialog = false },
                     title = { Text("Swap") },
                     text = {
-                        Column {
+                        Column (modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(scrollState)){
                             Text("Crypto: ${coin.name}")
                             Text("Price: ${String.format("%.4f €", coin.price)}")
                             Text("Amount: ${coin.amountOwned}")
 
-                            Spacer(modifier = Modifier.height(8.dp))
 
                             CryptoDropdown(
                                 coins = allCoins,
                                 onSelected = { selectedNewCoin = it },
-                                onLoadMore = { viewModel.loadCoinsFromApi() }
+                                onLoadMore = { viewModel.loadCoinsFromApi() },
+                                modifier = Modifier.fillMaxWidth(1f)
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
 
                             OutlinedTextField(
                                 value = newAmount,
                                 onValueChange = { newAmount = it },
-                                label = { Text("Amount") },
+                                label = { Text(stringResource(R.string.amount)) },
                                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
                                 singleLine = true
                             )
@@ -258,7 +266,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             OutlinedTextField(
                                 value = overrideSum.ifBlank { String.format("%.2f", calculatedSum) },
                                 onValueChange = { overrideSum = it },
-                                label = { Text("Price €") },
+                                label = { Text(stringResource(R.string.price)) },
                                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
                                 singleLine = true
                             )
@@ -295,19 +303,19 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             showSwapDialog = false
                             onBack()
                         }) {
-                            Text("Confirm")
+                            Text(stringResource(R.string.confirm))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showSwapDialog = false }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                     }
                 )
             }
 
         } else {
-            Text("---------")
+            Text(stringResource(R.string.blank))
         }
 
     }

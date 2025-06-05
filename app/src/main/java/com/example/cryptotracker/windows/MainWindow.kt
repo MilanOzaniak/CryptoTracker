@@ -35,6 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import com.example.cryptotracker.R
 import com.example.cryptotracker.components.CryptoDropdown
 import com.example.cryptotracker.components.CryptoItem
 import kotlinx.coroutines.flow.StateFlow
@@ -76,7 +79,7 @@ fun MainWindow(
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "portfolio value",
+                            text = stringResource(R.string.portfolio_value),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
@@ -92,7 +95,7 @@ fun MainWindow(
                             style = MaterialTheme.typography.labelLarge
                         )
                         Text(
-                            text = "Profit",
+                            text = stringResource(R.string.portfolio_profit),
                             color = Color.Gray,
                             style = MaterialTheme.typography.labelSmall
                         )
@@ -106,7 +109,7 @@ fun MainWindow(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Text("Add Transaction")
+                    Text(stringResource(R.string.add_transaction))
                 }
             }
         }
@@ -122,14 +125,14 @@ fun MainWindow(
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings",
-                    tint = Color.Black
+                    tint = colorResource(R.color.icon_color)
                 )
             }
             IconButton(onClick = onNavigateToNotification) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = "Add notification",
-                    tint = Color.Black
+                    tint = colorResource(R.color.icon_color)
                 )
             }
         }

@@ -8,16 +8,17 @@ fun cryptoNotification(
     context: Context,
     coin: CoinDto,
     targetPrice: Double,
-    delayInMinutes: Long = 1L
+    choose: Boolean
+
 ) {
     val inputData = workDataOf(
         "coinId" to coin.id,
         "coinName" to coin.name,
-        "targetPrice" to targetPrice
+        "targetPrice" to targetPrice,
+        "choose" to choose
     )
 
-    val request = OneTimeWorkRequestBuilder<CryptoNotificationWorker>()
-        .setInitialDelay(delayInMinutes, TimeUnit.MINUTES)
+    val request = PeriodicWorkRequestBuilder<CryptoNotificationWorker>(15, TimeUnit.MINUTES)
         .setInputData(inputData)
         .build()
 
