@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,6 +31,9 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
     private var isLoading = false
     private var allLoaded = false
     private var isWriting = false
+    val portfolioValue: StateFlow<Double> = localCryptos
+        .map { list -> list.sumOf { it.amountOwned * it.price } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     init {
         if (_coinGeckoCoins.value.isEmpty()) {
@@ -76,7 +80,8 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
                      image = coin.image,
                      amountOwned = existing.amountOwned + amount,
                      boughtSum = existing.boughtSum + (coin.current_price * amount),
-                     price = coin.current_price
+                     price = coin.current_price,
+                     change = coin.price_change_percentage_24h
                  )
                  repository.insert(crypto)
 
@@ -89,7 +94,8 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
                     image = coin.image,
                     amountOwned = amount,
                     boughtSum = coin.current_price * amount,
-                    price = coin.current_price
+                    price = coin.current_price,
+                    change = coin.price_change_percentage_24h
                 )
                  repository.insert(crypto)
             }
@@ -106,7 +112,8 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
                 image = coin.image,
                 amountOwned = coin.amountOwned,
                 boughtSum = coin.price * coin.amountOwned,
-                price = coin.price
+                price = coin.price,
+                change = coin.change
             )
             repository.insert(crypto)
         }
@@ -145,7 +152,7 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
 
             updatedList.forEach { updated ->
                 val original = savedCryptos.find { it.id == updated.id } ?: return@forEach
-                repository.update(original.copy(price = updated.current_price))
+                repository.update(original.copy(price = updated.current_price, change = updated.price_change_percentage_24h) )
             }
         } catch (e: Exception) {
             e.printStackTrace()

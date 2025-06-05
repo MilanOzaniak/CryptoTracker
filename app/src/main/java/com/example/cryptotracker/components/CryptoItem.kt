@@ -1,5 +1,6 @@
 package com.example.cryptotracker.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,10 +23,13 @@ fun CryptoItem(crypto: Crypto, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp)
+            .height(70.dp)
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF2F2F2)
+        ),
     ) {
         Row(
             modifier = Modifier
@@ -48,17 +52,24 @@ fun CryptoItem(crypto: Crypto, onClick: () -> Unit) {
                 Text(text = crypto.symbol.uppercase(), style = MaterialTheme.typography.labelSmall, color = Color.Gray)
             }
 
-            Text(
-                text = String.format("%+.2f €", profit),
-                color = profitColor,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(end = 16.dp)
-            )
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .height(40.dp)
+                    .padding(end = 4.dp)
+            ) {
+                Text(
+                    text = String.format("%+.2f €", profit),
+                    color = if (profit >= 0) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = String.format("%.4f €", crypto.amountOwned * crypto.price),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
-            Text(
-                text = String.format("%.4f €", crypto.price),
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
 }

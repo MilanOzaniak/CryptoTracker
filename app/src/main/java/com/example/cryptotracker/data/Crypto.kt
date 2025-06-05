@@ -10,5 +10,6 @@ data class Crypto(
     val price: Double,
     val amountOwned: Double,
     val boughtSum: Double,
-    val image: String
+    val image: String,
+    val change: Double
 )
