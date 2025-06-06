@@ -6,10 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cryptotracker.data.Crypto
+import com.example.cryptotracker.data.Transaction
 import com.example.cryptotracker.network.CoinDto
 import com.example.cryptotracker.network.RetrofitInstance
 import com.example.cryptotracker.notifications.cryptoNotification
 import com.example.cryptotracker.repository.CryptoRepository
+import com.example.cryptotracker.repository.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,11 +24,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
+class CryptoViewModel(private val Crepository: CryptoRepository, private val Trepository: TransactionRepository) : ViewModel() {
 
     private val _coinGeckoCoins = MutableStateFlow<List<CoinDto>>(emptyList())
     val coinGeckoCoins = _coinGeckoCoins.asStateFlow()
-    val localCryptos: StateFlow<List<Crypto>> = repository.allCryptos.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val localCryptos: StateFlow<List<Crypto>> = Crepository.allCryptos.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val localTransactions: StateFlow<List<Transaction>> = Trepository.allTransactions.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList() )
     private var currentPage = 1
     private var isLoading = false
     private var allLoaded = false
@@ -69,7 +72,7 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
     ) {
         viewModelScope.launch {
             isWriting = true
-            val existing = withContext(Dispatchers.IO) { repository.getCryptoById(coin.id) }
+            val existing = withContext(Dispatchers.IO) { Crepository.getCryptoById(coin.id) }
 
              if (existing != null) {
 
@@ -83,7 +86,7 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
                      price = coin.current_price,
                      change = coin.price_change_percentage_24h
                  )
-                 repository.insert(crypto)
+                 Crepository.insert(crypto)
 
 
             } else {
@@ -97,7 +100,7 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
                     price = coin.current_price,
                     change = coin.price_change_percentage_24h
                 )
-                 repository.insert(crypto)
+                 Crepository.insert(crypto)
             }
             isWriting = false
         }
@@ -115,19 +118,19 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
                 price = coin.price,
                 change = coin.change
             )
-            repository.insert(crypto)
+            Crepository.insert(crypto)
         }
     }
 
     fun deleteCrypto(crypto: Crypto) {
         viewModelScope.launch {
-            repository.delete(crypto)
+            Crepository.delete(crypto)
         }
     }
 
     fun modifyCrypto(updatedCrypto: Crypto) {
         viewModelScope.launch {
-            repository.update(updatedCrypto)
+            Crepository.update(updatedCrypto)
         }
     }
 
@@ -143,7 +146,7 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
     private suspend fun updatePrices() {
         if (isWriting) return
 
-        val savedCryptos = repository.allCryptos.first()
+        val savedCryptos = Crepository.allCryptos.first()
 
         val ids = savedCryptos.joinToString(",") { it.id }
 
@@ -152,10 +155,22 @@ class CryptoViewModel(private val repository: CryptoRepository) : ViewModel() {
 
             updatedList.forEach { updated ->
                 val original = savedCryptos.find { it.id == updated.id } ?: return@forEach
-                repository.update(original.copy(price = updated.current_price, change = updated.price_change_percentage_24h) )
+                Crepository.update(original.copy(price = updated.current_price, change = updated.price_change_percentage_24h) )
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    fun insertTransaction(trans: Transaction){
+        viewModelScope.launch {
+            val transaction = Transaction(
+                id = trans.id,
+                Type = trans.Type,
+                date = trans.date,
+                description = trans.description
+            )
+            Trepository.insert(transaction)
         }
     }
 

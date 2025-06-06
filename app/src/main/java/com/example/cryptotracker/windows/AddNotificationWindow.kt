@@ -53,7 +53,6 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Black
                 )
             }
 
@@ -79,12 +78,11 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Confirm",
-                    tint = Color.Black
                 )
             }
         }
 
-        Spacer(Modifier.fillMaxHeight(0.2f))
+        Spacer(Modifier.fillMaxHeight(0.1f))
         Text(stringResource(R.string.price_notification), style = MaterialTheme.typography.headlineSmall)
 
         Spacer(Modifier.height(12.dp))

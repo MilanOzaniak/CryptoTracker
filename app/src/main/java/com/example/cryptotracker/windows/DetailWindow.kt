@@ -42,7 +42,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.cryptotracker.R
 import com.example.cryptotracker.components.CryptoDropdown
+import com.example.cryptotracker.data.Transaction
 import com.example.cryptotracker.network.CoinDto
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -163,6 +167,15 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                     text = { Text(stringResource(R.string.delete_question)) },
                     confirmButton = {
                         TextButton(onClick = {
+                            val trans = Transaction(
+                                Type = "SELL",
+                                date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
+                                    Date()
+                                ),
+                                description ="Sold "+ coin.name + ", amount: " + coin.amountOwned + " " + coin.price
+                            )
+
+                            viewModel.insertTransaction(trans)
                             viewModel.deleteCrypto(coin)
                             showDialog = false
                             onBack()
@@ -195,7 +208,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             OutlinedTextField(
                                 value = editedPrice,
                                 onValueChange = { editedPrice = it },
-                                label = { Text("stringResource(R.string.price)") },
+                                label = { Text(stringResource(R.string.price))},
                                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
                                 singleLine = true
                             )
@@ -213,6 +226,15 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
 
                             )
                             viewModel.insertCrypto(updated)
+
+                            val trans = Transaction(
+                                Type = "MOD",
+                                date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+                                description = "Modified ${coin.name} (${coin.amountOwned}, ${coin.price}), -> (${updated.amountOwned} ${updated.price})"
+
+                            )
+
+                            viewModel.insertTransaction(trans)
                             showEditDialog = false
                         }) {
                             Text(stringResource(R.string.confirm))
@@ -300,6 +322,14 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
 
                             viewModel.insertOrUpdateCrypto(newCrypto, amount)
 
+                            val amountSwapped = sum / coin.price
+                            val trans = Transaction(
+                                Type = "SWAP",
+                                date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+                                description = "Swapped ${coin.name} (amount: %.4f), for ${newCrypto.name} (amount: %.4f)".format(amountSwapped, amount)
+                            )
+
+                            viewModel.insertTransaction(trans)
                             showSwapDialog = false
                             onBack()
                         }) {

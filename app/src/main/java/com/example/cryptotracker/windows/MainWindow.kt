@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -47,7 +48,8 @@ fun MainWindow(
     viewModel: CryptoViewModel,
     onNavigateToAddForm: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
-    onNavigateToNotification: () -> Unit
+    onNavigateToNotification: () -> Unit,
+    onNavigateToHistory: () -> Unit
 ) {
     val allCoins by viewModel.coinGeckoCoins.collectAsState()
     var selectedCoin by remember { mutableStateOf("") }
@@ -132,6 +134,13 @@ fun MainWindow(
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     contentDescription = "Add notification",
+                    tint = colorResource(R.color.icon_color)
+                )
+            }
+            IconButton(onClick = onNavigateToHistory) {
+                Icon(
+                    imageVector = Icons.Default.History,
+                    contentDescription = "Transaction history",
                     tint = colorResource(R.color.icon_color)
                 )
             }

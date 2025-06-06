@@ -42,6 +42,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.cryptotracker.R
+import com.example.cryptotracker.data.Transaction
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
@@ -97,6 +101,13 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
 
                     viewModel.insertOrUpdateCrypto(coin, newAmount)
 
+                    val trans = Transaction(
+                        Type = "BUY",
+                        date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+                        description = coin.name + ", bought amount: " + newAmount
+                    )
+
+                    viewModel.insertTransaction(trans)
                     onBack()
                 }
             ) {
@@ -107,7 +118,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 )
             }
         }
-        Spacer(modifier = Modifier.fillMaxHeight(0.2f))
+        Spacer(modifier = Modifier.fillMaxHeight(0.1f))
 
         Column(    modifier = Modifier
             .fillMaxSize(),

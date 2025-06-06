@@ -38,19 +38,22 @@ import com.example.cryptotracker.components.CryptoDropdown
 import com.example.cryptotracker.data.CryptoDatabase
 import com.example.cryptotracker.network.CoinDto
 import com.example.cryptotracker.repository.CryptoRepository
+import com.example.cryptotracker.repository.TransactionRepository
 import com.example.cryptotracker.ui.theme.CryptoTrackerTheme
 import com.example.cryptotracker.windows.AddNotificationWindow
 import com.example.cryptotracker.windows.AddWindow
 import com.example.cryptotracker.windows.DetailWindow
 import com.example.cryptotracker.windows.MainWindow
+import com.example.cryptotracker.windows.TransactionWindow
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val db = CryptoDatabase.getDatabase(applicationContext)
-        val repository = CryptoRepository(db.cryptoDao())
-        val viewModel = CryptoViewModel(repository)
+        val Crepository = CryptoRepository(db.cryptoDao())
+        val Trepository = TransactionRepository(db.transDao())
+        val viewModel = CryptoViewModel(Crepository, Trepository)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
@@ -77,7 +80,8 @@ class MainActivity : ComponentActivity() {
                         onNavigateToDetail = { coinId ->
                             navController.navigate("detail/$coinId")
                         },
-                        onNavigateToNotification =  {navController.navigate("addNotification")}
+                        onNavigateToNotification =  {navController.navigate("addNotification")},
+                        onNavigateToHistory =  {navController.navigate("transactions")}
                     )
                 }
                 composable("addForm") {
@@ -98,6 +102,12 @@ class MainActivity : ComponentActivity() {
                     AddNotificationWindow(
                         viewModel = viewModel,
                         onBack = { navController.popBackStack() }
+                    )
+                }
+                composable("transactions"){
+                    TransactionWindow(
+                        viewModel = viewModel,
+                        onBack = {navController.popBackStack()}
                     )
                 }
             }
