@@ -19,9 +19,12 @@ import com.example.cryptotracker.data.Transaction
 fun TransactionItem(trans: Transaction){
     Card(
         modifier = Modifier
-            .fillMaxWidth(0.8f)
+            .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF2F2F2)
+        )
     ) {
         Row(
             modifier = Modifier
@@ -32,7 +35,7 @@ fun TransactionItem(trans: Transaction){
             Text(
                 text = trans.id.toString(),
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(0.1f)
+                modifier = Modifier.weight(0.05f)
             )
 
             Column(

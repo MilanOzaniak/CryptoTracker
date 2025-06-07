@@ -92,6 +92,7 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
             onSelected = { coin -> selectedCoinId = coin.id },
             onLoadMore = { viewModel.loadCoinsFromApi() }
         )
+        Spacer(Modifier.height(12.dp))
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
