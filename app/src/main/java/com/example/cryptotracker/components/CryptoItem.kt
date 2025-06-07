@@ -10,15 +10,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.cryptotracker.CryptoViewModel
+import com.example.cryptotracker.R
 import com.example.cryptotracker.data.Crypto
 
 @Composable
 fun CryptoItem(crypto: Crypto, onClick: () -> Unit) {
     val profit = (crypto.price * crypto.amountOwned) - crypto.boughtSum
-    val profitColor = if (profit >= 0) Color(0xFF2E7D32) else Color(0xFFC62828) // green / red
 
     Card(
         modifier = Modifier
@@ -28,7 +29,7 @@ fun CryptoItem(crypto: Crypto, onClick: () -> Unit) {
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF2F2F2)
+            containerColor = colorResource(R.color.main_color)
         ),
     ) {
         Row(
@@ -61,7 +62,7 @@ fun CryptoItem(crypto: Crypto, onClick: () -> Unit) {
             ) {
                 Text(
                     text = String.format("%+.2f €", profit),
-                    color = if (profit >= 0) Color(0xFF2E7D32) else Color(0xFFC62828),
+                    color = if (profit >= 0) colorResource(R.color.green) else colorResource(R.color.red),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(

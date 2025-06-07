@@ -36,6 +36,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
@@ -76,13 +77,12 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Black
                 )
             }
         }
 
         if (coin != null) {
-            val changeColor = if (coin.change >= 0) Color(0xFF2E7D32) else Color(0xFFD32F2F)
+            val changeColor = if (coin.change >= 0) colorResource(R.color.green) else colorResource(R.color.red)
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -104,7 +104,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                     Text(
                         text = coin.symbol.uppercase(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
+                        color = colorResource(R.color.gray)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Price: %.4f €".format(coin.price))
@@ -122,7 +122,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                 val profit = coin.amountOwned * coin.price - coin.boughtSum
                 Text(
                     text = "Profit: %+.2f€".format(profit),
-                    color = if (profit >= 0) Color(0xFF2E7D32) else Color(0xFFC62828)
+                    color = if (profit >= 0) colorResource(R.color.green) else colorResource(R.color.red)
                 )
             }
 
@@ -160,6 +160,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                     )
                 }
             }
+            // delete dialog
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
@@ -191,6 +192,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                 )
             }
 
+            // edit dialog
             if (showEditDialog) {
                 AlertDialog(
                     onDismissRequest = { showEditDialog = false },
@@ -200,7 +202,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             OutlinedTextField(
                                 value = editedAmount,
                                 onValueChange = { editedAmount = it },
-                                label = { Text("Amount") },
+                                label = { Text(stringResource(R.string.amount)) },
                                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
                                 singleLine = true
                             )
@@ -219,11 +221,22 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             val amount = editedAmount.toDoubleOrNull()
                             val price = editedPrice.toDoubleOrNull()
 
-                            val updated = coin.copy(
-                                amountOwned = editedAmount.toDoubleOrNull() ?: coin.amountOwned,
-                                price = editedPrice.toDoubleOrNull() ?: coin.price,
-                                boughtSum = if (amount != null && price != null) amount * price else coin.boughtSum
+                            val updatedAmount = amount ?: coin.amountOwned
+                            val updatedPrice = price ?: coin.price
 
+                            val updatedBoughtSum = if (amount != null && amount < coin.amountOwned) {
+                                coin.boughtSum * (updatedAmount / coin.amountOwned)
+                            } else if (amount != null && amount > coin.amountOwned) {
+                                val diff = amount - coin.amountOwned
+                                coin.boughtSum + (diff * updatedPrice)
+                            } else {
+                                coin.boughtSum
+                            }
+
+                            val updated = coin.copy(
+                                amountOwned = updatedAmount,
+                                price = updatedPrice,
+                                boughtSum = updatedBoughtSum
                             )
                             viewModel.insertCrypto(updated)
 
@@ -257,7 +270,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
 
                 AlertDialog(
                     onDismissRequest = { showSwapDialog = false },
-                    title = { Text("Swap") },
+                    title = { Text(stringResource(R.string.swap)) },
                     text = {
                         Column (modifier = Modifier
                                 .fillMaxWidth()
@@ -319,8 +332,11 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                                     )
                                 )
                             }
-
-                            viewModel.insertOrUpdateCrypto(newCrypto, amount)
+                            viewModel.insertOrUpdateCrypto(
+                                newCrypto,
+                                amount,
+                                price = sum / amount
+                            )
 
                             val amountSwapped = sum / coin.price
                             val trans = Transaction(

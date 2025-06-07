@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
     var showErrorDialog by rememberSaveable  { mutableStateOf(false) }
     var errorDialogMessage by rememberSaveable  { mutableStateOf<String?>(null) }
     val selectedCoin = allCoins.find { it.id == selectedCoinId }
+    val context = LocalContext.current
 
     if (errorDialogMessage != null) {
         ErrorDialog(
@@ -88,18 +90,18 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                     val newAmount = amount.toDoubleOrNull()
 
                     if (coin == null) {
-                        errorDialogMessage = "Select crypto."
+                        errorDialogMessage = context.getString(R.string.select_error)
                         showErrorDialog = true
                         return@IconButton
                     }
 
                     if (newAmount == null || newAmount <= 0) {
-                        errorDialogMessage = "Amount must be greater than zero"
+                        errorDialogMessage = context.getString(R.string.amount_error)
                         showErrorDialog = true
                         return@IconButton
                     }
 
-                    viewModel.insertOrUpdateCrypto(coin, newAmount)
+                    viewModel.insertOrUpdateCrypto(coin, newAmount, price.toDouble())
 
                     val trans = Transaction(
                         Type = "BUY",
@@ -140,7 +142,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 onLoadMore = { viewModel.loadCoinsFromApi() },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(8.dp))
+                    .background(colorResource(R.color.main_color), shape = RoundedCornerShape(8.dp))
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -162,7 +164,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(8.dp))
+                    .background(colorResource(R.color.main_color), shape = RoundedCornerShape(8.dp))
             )
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -180,7 +182,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
-                    .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(8.dp))
+                    .background(colorResource(R.color.main_color), shape = RoundedCornerShape(8.dp))
             )
         }
 

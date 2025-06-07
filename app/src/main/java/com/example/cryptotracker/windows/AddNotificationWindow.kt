@@ -60,9 +60,9 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                 onClick = {
                     val value = triggerValue.toDoubleOrNull()
                     if (selectedCoin == null) {
-                        error = "Please select a coin."
+                        error = context.getString(R.string.select_error2)
                     } else if (value == null) {
-                        error = "Enter a valid numeric value."
+                        error = context.getString(R.string.value_error)
                     } else {
                         viewModel.scheduleNotification(
                             context = context,

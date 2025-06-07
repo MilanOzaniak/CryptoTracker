@@ -68,7 +68,8 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
 
     fun insertOrUpdateCrypto(
         coin: CoinDto,
-        amount: Double
+        amount: Double,
+        price: Double
     ) {
         viewModelScope.launch {
             isWriting = true
@@ -82,7 +83,7 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
                      symbol = coin.symbol,
                      image = coin.image,
                      amountOwned = existing.amountOwned + amount,
-                     boughtSum = existing.boughtSum + (coin.current_price * amount),
+                     boughtSum = existing.boughtSum + (price * amount),
                      price = coin.current_price,
                      change = coin.price_change_percentage_24h
                  )
@@ -96,7 +97,7 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
                     symbol = coin.symbol,
                     image = coin.image,
                     amountOwned = amount,
-                    boughtSum = coin.current_price * amount,
+                    boughtSum = price * amount,
                     price = coin.current_price,
                     change = coin.price_change_percentage_24h
                 )
@@ -114,7 +115,7 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
                 symbol = coin.symbol,
                 image = coin.image,
                 amountOwned = coin.amountOwned,
-                boughtSum = coin.price * coin.amountOwned,
+                boughtSum = coin.boughtSum,
                 price = coin.price,
                 change = coin.change
             )

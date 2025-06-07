@@ -57,7 +57,7 @@ fun MainWindow(
     val totalValue by viewModel.portfolioValue.collectAsState()
     val profit = savedCryptos.sumOf { it.price * it.amountOwned - it.boughtSum }
     val isProfit = profit >= 0
-    val profitColor = if (isProfit) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val profitColor = if (isProfit) colorResource(R.color.green) else colorResource(R.color.red)
 
     Column(
         modifier = Modifier
@@ -68,7 +68,7 @@ fun MainWindow(
         Spacer(modifier = Modifier.fillMaxHeight(0.05f))
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF2F2F2)),
+            colors = CardDefaults.cardColors(containerColor = colorResource(R.color.main_color)),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             modifier = Modifier.fillMaxWidth(0.9f)
         ) {
@@ -126,22 +126,19 @@ fun MainWindow(
             IconButton(onClick = {}) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings",
-                    tint = colorResource(R.color.icon_color)
+                    contentDescription = "Settings"
                 )
             }
             IconButton(onClick = onNavigateToNotification) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
-                    contentDescription = "Add notification",
-                    tint = colorResource(R.color.icon_color)
+                    contentDescription = "Add notification"
                 )
             }
             IconButton(onClick = onNavigateToHistory) {
                 Icon(
                     imageVector = Icons.Default.History,
-                    contentDescription = "Transaction history",
-                    tint = colorResource(R.color.icon_color)
+                    contentDescription = "Transaction history"
                 )
             }
         }
