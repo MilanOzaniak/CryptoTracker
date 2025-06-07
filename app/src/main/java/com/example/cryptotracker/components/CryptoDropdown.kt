@@ -36,6 +36,16 @@ import androidx.compose.ui.text.input.ImeAction
 import coil.compose.AsyncImage
 import com.example.cryptotracker.R
 
+// nájdené na internete, upravené na moje požiadavky
+// https://stackoverflow.com/questions/76039608/editable-dynamic-exposeddropdownmenubox-in-jetpack-compose
+
+/**
+ * Zobrazuje vyhľadávací dropdown, ktorý dovoluje filtrovanie
+ * @param coins - zoznam kryptomien
+ * @param onSelected - vybraná kryptomena
+ * @param onLoadMore - pri dosiahnuti konca zoznamu (5 položiek) sa načíta dalších 5
+ * @param modifier - modifier na Compose UI (voliteľné)
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CryptoDropdown(
@@ -49,7 +59,7 @@ fun CryptoDropdown(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-
+    // filtrovanie kryptomien podľa hľadaného textu, ignoruje velke male pismena
     val filtered = coins.filter {
         it.name.contains(search, ignoreCase = true) || it.symbol.contains(search, ignoreCase = true)
     }

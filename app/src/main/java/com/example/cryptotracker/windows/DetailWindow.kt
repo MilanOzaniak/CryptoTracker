@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.cryptotracker.R
 import com.example.cryptotracker.components.CryptoDropdown
+import com.example.cryptotracker.components.TransactionItem
 import com.example.cryptotracker.data.Transaction
 import com.example.cryptotracker.network.CoinDto
 import java.text.SimpleDateFormat
@@ -62,6 +65,12 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
     var selectedNewCoin by remember { mutableStateOf<CoinDto?>(null) }
     var newAmount by rememberSaveable { mutableStateOf("") }
     var overrideSum by rememberSaveable { mutableStateOf("") }
+    val savedTransactions by viewModel.localTransactions.collectAsState()
+    val filteredSortedTransactions = coin?.let { c ->
+        savedTransactions
+            .filter { it.description.contains(c.name, ignoreCase = true) }
+            .sortedByDescending { it.id }
+    } ?: emptyList()
     Column(modifier = Modifier
         .padding(16.dp)
         .fillMaxSize())
@@ -160,6 +169,20 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                     )
                 }
             }
+            Text(stringResource(R.string.history))
+            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8f)
+            ) {
+                items(filteredSortedTransactions, key = { it.id }) { trans ->
+                    TransactionItem(trans)
+                }
+            }
+
             // delete dialog
             if (showDialog) {
                 AlertDialog(

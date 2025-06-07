@@ -8,6 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.cryptotracker.R
 
+/**
+ * Zobrazí dialógové okno s chybovou hláškou
+ *
+ * @param message správa, ktorá sa zobrazí v dialógu
+ * @param onDismiss Callback, ktorý sa spustí po zatvorení dialóg okna
+ */
 @Composable
 fun ErrorDialog(
     message: String,

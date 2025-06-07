@@ -17,8 +17,14 @@ import com.example.cryptotracker.CryptoViewModel
 import com.example.cryptotracker.R
 import com.example.cryptotracker.data.Crypto
 
+/**
+ * Zobrazuje jednu položku kryptomeny v zozname
+ * @param crypto - kryptomena, ktorú chceme zobraziť
+ * @param onClick - Callback, ktorý sa spustí po kliknutí na card
+ */
 @Composable
 fun CryptoItem(crypto: Crypto, onClick: () -> Unit) {
+    // Výpočet aktuálneho profitu
     val profit = (crypto.price * crypto.amountOwned) - crypto.boughtSum
 
     Card(

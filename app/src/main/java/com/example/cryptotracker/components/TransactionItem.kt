@@ -15,6 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.cryptotracker.data.Transaction
 
+/**
+ * Zobrazuje jednu položku transakcie v zozname
+ *
+ * @param trans Transakcia
+ */
 @Composable
 fun TransactionItem(trans: Transaction){
     Card(
@@ -32,15 +37,17 @@ fun TransactionItem(trans: Transaction){
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            //ID transakcie
             Text(
                 text = trans.id.toString(),
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(0.05f)
+                modifier = Modifier.weight(0.1f)
             )
 
+            //Typ a dátum
             Column(
                 modifier = Modifier
-                    .weight(0.3f)
+                    .weight(0.2f)
                     .padding(start = 8.dp)
             ) {
                 Text(
@@ -53,7 +60,7 @@ fun TransactionItem(trans: Transaction){
                     color = Color.Gray
                 )
             }
-
+            //Popis transakcie
             Text(
                 text = trans.description,
                 style = MaterialTheme.typography.bodyLarge,
