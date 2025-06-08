@@ -52,7 +52,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-
+/**
+ * Composable okno pre detaily kryptomeny, zobrazuje základné údaje a transakcie
+ *
+ * @param coinId ID kryptomeny
+ * @param viewModel
+ * @param onBack Callback, pre návrat na hlavnú obrazovku
+ */
 @Composable
 fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit) {
     val savedCoins by viewModel.localCryptos.collectAsState()
@@ -191,6 +197,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                     text = { Text(stringResource(R.string.delete_question)) },
                     confirmButton = {
                         TextButton(onClick = {
+                            // Pri zmazaní pridáme aj transakciu SELL
                             val trans = Transaction(
                                 Type = "SELL",
                                 date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(
@@ -241,6 +248,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                     },
                     confirmButton = {
                         TextButton(onClick = {
+                            // Logika prepočíta boughtSum podľa zmien v amount/cene
                             val amount = editedAmount.toDoubleOrNull()
                             val price = editedPrice.toDoubleOrNull()
 
@@ -248,11 +256,14 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             val updatedPrice = price ?: coin.price
 
                             val updatedBoughtSum = if (amount != null && amount < coin.amountOwned) {
+                                // Ak používateľ zníži množstvo (predáva časť mincí), boughtSum sa zníži pomerne podľa podielu nového množstva
                                 coin.boughtSum * (updatedAmount / coin.amountOwned)
                             } else if (amount != null && amount > coin.amountOwned) {
+                                // Ak používateľ zvýši množstvo (dokúpi mince), k pôvodnému boughtSum sa pripočíta cena dokúpených mincí
                                 val diff = amount - coin.amountOwned
                                 coin.boughtSum + (diff * updatedPrice)
                             } else {
+                                // Ak sa množstvo nemení alebo nastala chyba pri prevode, boughtSum ostáva nezmenený.
                                 coin.boughtSum
                             }
 
@@ -263,6 +274,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             )
                             viewModel.insertCrypto(updated)
 
+                            // Pridaj transakciu o zmene
                             val trans = Transaction(
                                 Type = "MOD",
                                 date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
@@ -284,6 +296,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                 )
             }
 
+            //Swap dialog
             if (showSwapDialog) {
                 val allCoins by viewModel.coinGeckoCoins.collectAsState()
                 val calculatedSum = (selectedNewCoin?.current_price ?: 0.0) * (newAmount.toDoubleOrNull() ?: 0.0)
@@ -338,6 +351,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
 
                             val currentCoinValue = coin.amountOwned * coin.price
 
+                            //nemôžeš swapnúť za viac než máš
                             if (sum > currentCoinValue) {
                                 return@TextButton
                             }
@@ -345,6 +359,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                             val remainingAmount = coin.amountOwned - (sum / coin.price)
                             val remainingBoughtSum = coin.boughtSum - sum
 
+                            //Ak si swapol všetko, zmaž pôvodnú mincu
                             if (remainingAmount <= 0.0) {
                                 viewModel.deleteCrypto(coin)
                             } else {
@@ -355,6 +370,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                                     )
                                 )
                             }
+                            // Pridanie noveho crypta
                             viewModel.insertOrUpdateCrypto(
                                 newCrypto,
                                 amount,

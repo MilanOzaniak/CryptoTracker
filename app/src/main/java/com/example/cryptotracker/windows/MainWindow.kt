@@ -43,6 +43,16 @@ import com.example.cryptotracker.components.CryptoDropdown
 import com.example.cryptotracker.components.CryptoItem
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * Hlavné okno aplikácie
+ *
+ * @param viewModel
+ * @param onNavigateToAddForm Callback na navigáciu do okna AddWindow
+ * @param onNavigateToDetail Callback na navigáciu do okna DetailWindow
+ * @param onNavigateToNotification Callback na navigáciu do okna AddNotificationWindow
+ * @param onNavigateToHistory Callback na navigáciu do okna TransactionWindow
+ */
+
 @Composable
 fun MainWindow(
     viewModel: CryptoViewModel,
@@ -51,8 +61,6 @@ fun MainWindow(
     onNavigateToNotification: () -> Unit,
     onNavigateToHistory: () -> Unit
 ) {
-    val allCoins by viewModel.coinGeckoCoins.collectAsState()
-    var selectedCoin by remember { mutableStateOf("") }
     val savedCryptos by viewModel.localCryptos.collectAsState()
     val totalValue by viewModel.portfolioValue.collectAsState()
     val profit = savedCryptos.sumOf { it.price * it.amountOwned - it.boughtSum }

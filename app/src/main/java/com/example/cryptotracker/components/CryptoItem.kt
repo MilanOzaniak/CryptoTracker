@@ -20,7 +20,7 @@ import com.example.cryptotracker.data.Crypto
 /**
  * Zobrazuje jednu položku kryptomeny v zozname
  * @param crypto - kryptomena, ktorú chceme zobraziť
- * @param onClick - Callback, ktorý sa spustí po kliknutí na card
+ * @param onClick - Callback, ktorý sa spustí po kliknutí
  */
 @Composable
 fun CryptoItem(crypto: Crypto, onClick: () -> Unit) {

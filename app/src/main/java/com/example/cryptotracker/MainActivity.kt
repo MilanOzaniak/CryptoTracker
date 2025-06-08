@@ -46,6 +46,11 @@ import com.example.cryptotracker.windows.DetailWindow
 import com.example.cryptotracker.windows.MainWindow
 import com.example.cryptotracker.windows.TransactionWindow
 
+/**
+ * Hlavná aktivita aplikácie CryptoTracker.
+ * Inicializuje databázu, repozitáre, ViewModel, rieši povolenia na notifikácie,
+ * nastavuje Compose navigáciu a zobrazuje jednotlivé okná podľa stavu aplikácie
+ */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +60,7 @@ class MainActivity : ComponentActivity() {
         val Trepository = TransactionRepository(db.transDao())
         val viewModel = CryptoViewModel(Crepository, Trepository)
 
+        // povolenie pre notifikácie na Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -72,6 +78,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
+            // Definícia Compose navigácie medzi jednotlivými obrazovkami
             NavHost(navController = navController, startDestination = "main") {
                 composable("main") {
                     MainWindow(

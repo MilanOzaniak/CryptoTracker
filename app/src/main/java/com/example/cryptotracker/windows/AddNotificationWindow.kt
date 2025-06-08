@@ -25,6 +25,11 @@ import androidx.compose.ui.res.stringResource
 import com.example.cryptotracker.R
 
 
+/**
+ * Composable okno pre pridanie notifikácie
+ * @param viewModel Inštancia pre prístup k zoznamu coinov a plánovanie notifikácií
+ * @param onBack Callback, pre návrat na hlavnú obrazovku
+ */
 @Composable
 fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
     val allCoins by viewModel.coinGeckoCoins.collectAsState()
@@ -34,6 +39,7 @@ fun AddNotificationWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
     val context = LocalContext.current
     var choice by rememberSaveable { mutableStateOf(false) }
 
+    // Nájdi vybraný coin podľa ID
     val selectedCoin = allCoins.find { it.id == selectedCoinId }
 
     Column(

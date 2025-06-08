@@ -24,27 +24,46 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * ViewModel zabezpečuje načítanie dát z CoinGecko API, správu portfólia,
+ * pravidelnú aktualizáciu cien, manipuláciu s lokálnymi kryptomenami, správu transakcií a notifikácií
+ * @property Crepository Repozitár pre prácu s kryptomenami
+ * @property Trepository Repozitár pre prácu s transakciami
+ */
 class CryptoViewModel(private val Crepository: CryptoRepository, private val Trepository: TransactionRepository) : ViewModel() {
 
+    // všetky kryptomeny z CoinGecko API
     private val _coinGeckoCoins = MutableStateFlow<List<CoinDto>>(emptyList())
     val coinGeckoCoins = _coinGeckoCoins.asStateFlow()
+
+    // lokálne kryptomeny v databaze
     val localCryptos: StateFlow<List<Crypto>> = Crepository.allCryptos.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // lokalne transakcie v databaze
     val localTransactions: StateFlow<List<Transaction>> = Trepository.allTransactions.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList() )
+
+    // pomocne premenne, zabranuju opakovanemu načitavaniu dat a kolizii načítavania
     private var currentPage = 1
     private var isLoading = false
     private var allLoaded = false
     private var isWriting = false
+
+    // Flow pre hodnotu portfólia (suma všetkých coinov * cena)
     val portfolioValue: StateFlow<Double> = localCryptos
         .map { list -> list.sumOf { it.amountOwned * it.price } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     init {
+        // Pri štarte načíta coiny z API a spustí aktualizáciu cien
         if (_coinGeckoCoins.value.isEmpty()) {
             loadCoinsFromApi()
         }
         startPriceUpdater()
     }
 
+    /**
+     * načítanie ďalších coinov z CoinGecko API
+     */
     fun loadCoinsFromApi() {
         if (isLoading || allLoaded) return
         isLoading = true
@@ -66,6 +85,9 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
         }
     }
 
+    /**
+     * Pridá alebo aktualizuje kryptomenu v portfóliu, ak kryptomena už existuje, zvýši množstvo a boughtSum
+     */
     fun insertOrUpdateCrypto(
         coin: CoinDto,
         amount: Double,
@@ -107,6 +129,9 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
         }
     }
 
+    /**
+     * insert operácia na kryptomenu
+     */
     fun insertCrypto(coin: Crypto){
         viewModelScope.launch {
             val crypto = Crypto(
@@ -123,18 +148,29 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
         }
     }
 
+    /**
+     * Vymazanie kryptomeny z portfólia.
+     * @param crypto kryptomena
+     */
     fun deleteCrypto(crypto: Crypto) {
         viewModelScope.launch {
             Crepository.delete(crypto)
         }
     }
 
+    /**
+     * Úprava kryptomeny
+     * @param updatedCrypto kryptomena
+     */
     fun modifyCrypto(updatedCrypto: Crypto) {
         viewModelScope.launch {
             Crepository.update(updatedCrypto)
         }
     }
 
+    /**
+     * Spustí cyklus na pravidelnú aktualizáciu cien každých 20 sekúnd
+     */
     fun startPriceUpdater() {
         viewModelScope.launch {
             while (true) {
@@ -144,6 +180,9 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
         }
     }
 
+    /**
+     * Načítanie aktuálnych cien a update všetkých uložených coinov v databáze
+     */
     private suspend fun updatePrices() {
         if (isWriting) return
 
@@ -163,6 +202,10 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
         }
     }
 
+    /**
+     * Pridanie novej transakcie do databázy
+     * @param trans transakcia
+     */
     fun insertTransaction(trans: Transaction){
         viewModelScope.launch {
             val transaction = Transaction(
@@ -175,6 +218,9 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
         }
     }
 
+    /**
+     * Naplánovanie notifikácie na kryptomenu
+     */
     fun scheduleNotification(
         context: Context,
         coin: CoinDto,

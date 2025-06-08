@@ -48,6 +48,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Composable okno na pridanie novej kryptomeny do portfólia
+ * @param viewModel Inštancia na prácu s kryptomenami a transakciami
+ * @param onBack Callback, pre návrat na hlavnú obrazovku
+ */
 @Composable
 fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
     var amount by rememberSaveable  { mutableStateOf("") }
@@ -59,6 +64,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
     val selectedCoin = allCoins.find { it.id == selectedCoinId }
     val context = LocalContext.current
 
+    // Zobrazenie dialógu pri chybe
     if (errorDialogMessage != null) {
         ErrorDialog(
             message = errorDialogMessage ?: stringResource(R.string.unknown_error),
@@ -89,6 +95,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                     val coin = selectedCoin
                     val newAmount = amount.toDoubleOrNull()
 
+                    // Kontrola výberu coinu a správnosti množstva
                     if (coin == null) {
                         errorDialogMessage = context.getString(R.string.select_error)
                         showErrorDialog = true
@@ -101,8 +108,10 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                         return@IconButton
                     }
 
+                    // Pridanie alebo update kryptomeny v databáze
                     viewModel.insertOrUpdateCrypto(coin, newAmount, price.toDouble())
 
+                    // Vytvorenie záznamu o transakcii
                     val trans = Transaction(
                         Type = "BUY",
                         date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),

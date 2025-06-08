@@ -30,6 +30,11 @@ import com.example.cryptotracker.R
 import com.example.cryptotracker.components.CryptoItem
 import com.example.cryptotracker.components.TransactionItem
 
+/**
+ * Composable okno zobrazuje zoznam všetkých transakcií v aplikácii
+ * @param viewModel
+ * @param onBack Callback, pre návrat na hlavnú obrazovku
+ */
 @Composable
 fun TransactionWindow(viewModel: CryptoViewModel, onBack: () -> Unit){
 
