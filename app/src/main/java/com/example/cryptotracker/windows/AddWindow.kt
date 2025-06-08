@@ -62,6 +62,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
     var showErrorDialog by rememberSaveable  { mutableStateOf(false) }
     var errorDialogMessage by rememberSaveable  { mutableStateOf<String?>(null) }
     val selectedCoin = allCoins.find { it.id == selectedCoinId }
+
     val context = LocalContext.current
 
     // Zobrazenie dialógu pri chybe
@@ -93,7 +94,9 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
             IconButton(
                 onClick = {
                     val coin = selectedCoin
-                    val newAmount = amount.toDoubleOrNull()
+                    val newAmount = amount.replace(',', '.').toDoubleOrNull()
+                    val newUnitPrice = price.replace(',', '.').toDouble()
+
 
                     // Kontrola výberu coinu a správnosti množstva
                     if (coin == null) {
@@ -109,7 +112,7 @@ fun AddWindow(viewModel: CryptoViewModel, onBack: () -> Unit) {
                     }
 
                     // Pridanie alebo update kryptomeny v databáze
-                    viewModel.insertOrUpdateCrypto(coin, newAmount, price.toDouble())
+                    viewModel.insertOrUpdateCrypto(coin, newAmount, newUnitPrice)
 
                     // Vytvorenie záznamu o transakcii
                     val trans = Transaction(

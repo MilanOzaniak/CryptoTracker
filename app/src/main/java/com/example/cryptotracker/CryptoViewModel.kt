@@ -105,7 +105,7 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
                      symbol = coin.symbol,
                      image = coin.image,
                      amountOwned = existing.amountOwned + amount,
-                     boughtSum = existing.boughtSum + (price * amount),
+                     boughtSum = existing.boughtSum + (price),
                      price = coin.current_price,
                      change = coin.price_change_percentage_24h
                  )
@@ -119,7 +119,7 @@ class CryptoViewModel(private val Crepository: CryptoRepository, private val Tre
                     symbol = coin.symbol,
                     image = coin.image,
                     amountOwned = amount,
-                    boughtSum = price * amount,
+                    boughtSum = price,
                     price = coin.current_price,
                     change = coin.price_change_percentage_24h
                 )
