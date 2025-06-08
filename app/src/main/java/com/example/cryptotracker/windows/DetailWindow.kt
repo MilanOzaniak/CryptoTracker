@@ -68,7 +68,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
     var editedAmount by rememberSaveable { mutableStateOf("") }
     var editedPrice by rememberSaveable { mutableStateOf("") }
     var showSwapDialog by rememberSaveable { mutableStateOf(false) }
-    var selectedNewCoin by remember { mutableStateOf<CoinDto?>(null) }
+    var selectedNewCoinId by rememberSaveable { mutableStateOf<String?>(null) }
     var newAmount by rememberSaveable { mutableStateOf("") }
     var overrideSum by rememberSaveable { mutableStateOf("") }
     var cal by rememberSaveable { mutableStateOf("") }
@@ -80,7 +80,8 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
     } ?: emptyList()
     Column(modifier = Modifier
         .padding(16.dp)
-        .fillMaxSize())
+        .fillMaxSize()
+    )
     {
 
         Spacer(modifier = Modifier.fillMaxHeight(0.03f))
@@ -176,8 +177,6 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
                     )
                 }
             }
-            Text(stringResource(R.string.history))
-            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
 
 
             LazyColumn(
@@ -300,6 +299,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
             //Swap dialog
             if (showSwapDialog) {
                 val allCoins by viewModel.coinGeckoCoins.collectAsState()
+                val selectedNewCoin = allCoins.find { it.id == selectedNewCoinId }
                 val calculatedSum = (selectedNewCoin?.current_price ?: 0.0) * (newAmount.toDoubleOrNull() ?: 0.0)
                 val scrollState = rememberScrollState()
 
@@ -319,7 +319,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
 
                             CryptoDropdown(
                                 coins = allCoins,
-                                onSelected = { selectedNewCoin = it },
+                                onSelected = { selectedNewCoinId = it.id  },
                                 onLoadMore = { viewModel.loadCoinsFromApi() },
                                 modifier = Modifier.fillMaxWidth(1f)
                             )

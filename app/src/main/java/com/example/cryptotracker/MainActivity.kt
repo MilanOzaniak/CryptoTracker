@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
-            // Definícia Compose navigácie medzi jednotlivými obrazovkami
+            // Compose navigácia medzi jednotlivými obrazovkami
             NavHost(navController = navController, startDestination = "main") {
                 composable("main") {
                     MainWindow(
