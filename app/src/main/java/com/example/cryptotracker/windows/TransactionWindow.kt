@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.room.util.TableInfo
 import com.example.cryptotracker.CryptoViewModel
 import com.example.cryptotracker.R
@@ -47,7 +49,7 @@ fun TransactionWindow(viewModel: CryptoViewModel, onBack: () -> Unit){
         .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(stringResource(R.string.history))
+
         Spacer(modifier = Modifier.fillMaxHeight(0.03f))
 
         Row(
@@ -61,9 +63,14 @@ fun TransactionWindow(viewModel: CryptoViewModel, onBack: () -> Unit){
                 )
             }
         }
+        Text(stringResource(R.string.history),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+
         LazyColumn(
             modifier = Modifier
-                .fillMaxWidth(0.95f)
+                .fillMaxWidth(0.92f)
                 .fillMaxHeight()
         ) {
             items(sortedTransactions, key = { it.id }) { trans ->

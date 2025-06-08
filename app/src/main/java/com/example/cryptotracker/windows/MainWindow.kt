@@ -127,7 +127,7 @@ fun MainWindow(
         Spacer(modifier = Modifier.height(2.dp))
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.95f)
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.End
         ) {
@@ -153,10 +153,11 @@ fun MainWindow(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.6f)
+                .fillMaxHeight(0.95f)
         ) {
             items(savedCryptos, key = { it.id }) { crypto ->
                 CryptoItem(crypto, onClick = {

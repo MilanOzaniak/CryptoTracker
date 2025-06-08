@@ -71,6 +71,7 @@ fun DetailWindow(coinId: String, viewModel: CryptoViewModel, onBack: () -> Unit)
     var selectedNewCoin by remember { mutableStateOf<CoinDto?>(null) }
     var newAmount by rememberSaveable { mutableStateOf("") }
     var overrideSum by rememberSaveable { mutableStateOf("") }
+    var cal by rememberSaveable { mutableStateOf("") }
     val savedTransactions by viewModel.localTransactions.collectAsState()
     val filteredSortedTransactions = coin?.let { c ->
         savedTransactions
